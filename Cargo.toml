@@ -7,3 +7,4 @@ edition = "2021"
 regex = "1.11.1"
 reqwest = "0.12.15"
 tokio = { version = "1", features = ["full"] }
+openssl-sys = { version = "0.9", features = ["vendored"] }
