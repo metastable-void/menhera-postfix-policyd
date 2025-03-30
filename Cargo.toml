@@ -1,0 +1,9 @@
+[package]
+name = "menhera-postfix-policyd"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+regex = "1.11.1"
+reqwest = "0.12.15"
+tokio = { version = "1", features = ["full"] }
