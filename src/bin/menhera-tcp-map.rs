@@ -13,7 +13,7 @@ struct MyResult {
 #[tokio::main]
 async fn main() {
     let port = std::env::var("PORT").unwrap_or_else(|_| "".to_string());
-    let port = port.parse::<u16>().unwrap_or(13088);
+    let port = port.parse::<u16>().unwrap_or(13087);
 
     let listener = TcpListener::bind(("127.0.0.1", port))
         .await
