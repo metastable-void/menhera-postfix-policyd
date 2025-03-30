@@ -603,6 +603,7 @@ dependencies = [
  "openssl-sys",
  "regex",
  "reqwest",
+ "serde",
  "tokio",
 ]
 
