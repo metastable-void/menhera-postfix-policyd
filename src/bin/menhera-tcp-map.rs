@@ -52,13 +52,13 @@ async fn main() {
                                 println!("Received: {} -> {}", key, value);
 
                                 let parts = value.split('@').collect::<Vec<_>>();
-                                if parts.len() != 2 {
+                                if parts.len() > 2 {
                                     println!("Invalid recipient format: {}", value);
                                     continue;
                                 }
 
                                 let username = parts[0].to_string();
-                                let domain = parts[1].to_string();
+                                let domain = if parts.len() == 2 { parts[1].to_string() } else { "menhera.org".to_string() };
                                 drop(parts);
 
                                 if domains.iter().any(|&d| d == &domain) {
