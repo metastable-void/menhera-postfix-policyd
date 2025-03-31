@@ -48,6 +48,9 @@ async fn main() {
                             let value = parts[1];
                             if key == "get" {
                                 let mut results = Err(());
+
+                                println!("Received: {} -> {}", key, value);
+
                                 let parts = value.split('@').collect::<Vec<_>>();
                                 if parts.len() != 2 {
                                     println!("Invalid recipient format: {}", value);
@@ -68,7 +71,7 @@ async fn main() {
 
                                 if results.is_ok() {
                                     let results = results.unwrap();
-                                    let results_joined = results.join(" ");
+                                    let results_joined = results.join(", ");
                                     let _ = reader.write_all(format!("200 {}\n", results_joined).as_bytes()).await;
                                 } else {
                                     let _ = reader.write_all(b"500 error\n").await;
