@@ -65,7 +65,7 @@ async fn main() {
                                     results = check_user(&username).await;
                                 } else if wildcard_pattern.is_match(value) {
                                     let username = wildcard_pattern.captures(value).unwrap();
-                                    let username = username.get(0).unwrap().as_str();
+                                    let username = username.get(1).unwrap().as_str();
                                     results = check_user(username).await;
                                 }
 
