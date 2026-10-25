@@ -1,8 +1,7 @@
-
-use tokio::net::TcpListener;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use regex::Regex;
 use serde::Deserialize;
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::net::TcpListener;
 
 #[derive(Deserialize)]
 struct MyResult {
@@ -27,11 +26,10 @@ async fn main() {
                 println!("Accepted connection from {}", addr);
                 // Handle the connection in a separate task
                 tokio::spawn(async move {
-                    let wildcard_pattern = Regex::new(r"^[-a-zA-Z0-9._]+@([a-z0-9]+)\.(?:h09\.eu|mnhr\.org)$").unwrap();
-                    let domains = vec![
-                        "menhera.org",
-                        "h09.eu",
-                    ];
+                    let wildcard_pattern =
+                        Regex::new(r"^[-a-zA-Z0-9._]+@([a-z0-9]+)\.(?:h09\.eu|mnhr\.org)$")
+                            .unwrap();
+                    let domains = ["menhera.org", "h09.eu"];
 
                     let mut reader = BufReader::new(socket);
                     let mut line = String::new();
@@ -58,10 +56,14 @@ async fn main() {
                                 }
 
                                 let username = parts[0].to_string();
-                                let domain = if parts.len() == 2 { parts[1].to_string() } else { "menhera.org".to_string() };
+                                let domain = if parts.len() == 2 {
+                                    parts[1].to_string()
+                                } else {
+                                    "menhera.org".to_string()
+                                };
                                 drop(parts);
 
-                                if domains.iter().any(|&d| d == &domain) {
+                                if domains.iter().any(|&d| d == domain) {
                                     results = check_user(&username).await;
                                 } else if wildcard_pattern.is_match(value) {
                                     let username = wildcard_pattern.captures(value).unwrap();
@@ -72,7 +74,9 @@ async fn main() {
                                 if results.is_ok() {
                                     let results = results.unwrap();
                                     let results_joined = results.join(", ");
-                                    let _ = reader.write_all(format!("200 {}\n", results_joined).as_bytes()).await;
+                                    let _ = reader
+                                        .write_all(format!("200 {}\n", results_joined).as_bytes())
+                                        .await;
                                 } else {
                                     let _ = reader.write_all(b"500 error\n").await;
                                 }

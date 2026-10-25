@@ -1,7 +1,6 @@
-
-use tokio::net::TcpListener;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use regex::Regex;
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::net::TcpListener;
 
 #[tokio::main]
 async fn main() {
@@ -20,11 +19,10 @@ async fn main() {
                 println!("Accepted connection from {}", addr);
                 // Handle the connection in a separate task
                 tokio::spawn(async move {
-                    let wildcard_pattern = Regex::new(r"^[-a-zA-Z0-9._]+@([a-z0-9]+)\.(?:h09\.eu|mnhr\.org)$").unwrap();
-                    let domains = vec![
-                        "menhera.org",
-                        "h09.eu",
-                    ];
+                    let wildcard_pattern =
+                        Regex::new(r"^[-a-zA-Z0-9._]+@([a-z0-9]+)\.(?:h09\.eu|mnhr\.org)$")
+                            .unwrap();
+                    let domains = ["menhera.org", "h09.eu"];
 
                     let mut reader = BufReader::new(socket);
                     let mut line = String::new();
@@ -55,32 +53,37 @@ async fn main() {
                                 let domain = parts[1].to_string();
                                 drop(parts);
 
-                                if domains.iter().any(|&d| d == &domain) {
+                                if domains.iter().any(|&d| d == domain) {
                                     permit = check_user(&username).await;
                                 } else if wildcard_pattern.is_match(value) {
                                     let username = wildcard_pattern.captures(value).unwrap();
                                     let username = username.get(1).unwrap().as_str();
                                     permit = check_user(username).await;
                                 }
-                                println!("Valid recipient domain: {}", &domain);
+                                println!("Valid recipient domain: {}", domain);
                                 recipients_results.push(permit);
                             }
                         } else {
                             // end of request
                             // Check if all recipients are valid
-                            let all_valid = recipients_results.len() > 0 && recipients_results.iter().all(|&valid| valid);
+                            let all_valid = !recipients_results.is_empty()
+                                && recipients_results.iter().all(|&valid| valid);
                             if all_valid {
                                 println!("All recipients are valid");
                                 // Send response
-                                let response = format!("action=permit Ok\n\n");
-                                if let Err(e) = reader.get_mut().write_all(response.as_bytes()).await {
+                                let response = "action=permit Ok\n\n".to_string();
+                                if let Err(e) =
+                                    reader.get_mut().write_all(response.as_bytes()).await
+                                {
                                     eprintln!("Failed to send response: {}", e);
                                 }
                             } else {
                                 println!("Not all recipients are valid");
                                 // Send error response
-                                let response = format!("action=defer_if_permit Service temporarily unavailable\n\n");
-                                if let Err(e) = reader.get_mut().write_all(response.as_bytes()).await {
+                                let response = "action=defer_if_permit Service temporarily unavailable\n\n".to_string();
+                                if let Err(e) =
+                                    reader.get_mut().write_all(response.as_bytes()).await
+                                {
                                     eprintln!("Failed to send error response: {}", e);
                                 }
                             }
